@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Napájecí zdroj</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="topnav">
+    <h1>Napájecí zdroj</h1>
+  </div>
+  <div class="content">
+    <div class="card-grid">
+      <div class="card">
+        <form action="/" method="POST">
+          <p class="card-title">Napětí 0-30V</p>
+          <p>
+            <label for="input1"></label>
+            <input type="text" id ="input1" name="input1">
+            <input type ="submit" value ="Submit">
+          </p>
+        </form>
+      </div>
+      <div class="card">
+        <form action="/" method="POST">
+          <p class="card-title">Proud 0-3000mA</p>
+          <p>
+            <label for="input2"></label>
+            <input type="text" id ="input2" name="input2">
+            <input type ="submit" value ="Submit">
+          </p>
+        </form>
+      </div>
+      <div class="card">
+        <p class="card-title">Napětí</p>
+        <p class="value">Aktuální hodnota: <span id="nap"></span><span>V</span></p>
+      </div>
+      <div class="card">
+        <p class="card-title">Proud</p>
+        <p class="value">Aktuální hodnota: <span id="pro"></span><span>mA</span></p>
+      </div>
+    </div>
+  </div>
+  <script>
+window.addEventListener('load', getReadings);
+function getReadings() {
+ var xhr = new XMLHttpRequest();
+ xhr.onreadystatechange = function() {
+ if (this.readyState == 4 && this.status == 200) {
+ var myObj = JSON.parse(this.responseText);
+ console.log(myObj);
+ document.getElementById("nap").innerHTML = myObj.napeti;
+ document.getElementById("pro").innerHTML = myObj.proud;
+ }
+};
+ xhr.open("GET", "/readings", true);
+ xhr.send();
+}
+if (!!window.EventSource) {
+ var source = new EventSource('/events');
+ source.addEventListener('open', function(e) {
+ console.log("Events Connected");
+ }, false);
+ source.addEventListener('error', function(e) {
+ if (e.target.readyState != EventSource.OPEN) {
+ console.log("Events Disconnected");
+ }
+ }, false);
+ source.addEventListener('new_readings', function(e) {
+ console.log("new_readings", e.data);
+ var obj = JSON.parse(e.data);
+ document.getElementById("nap").innerHTML = obj.napeti;
+ document.getElementById("pro").innerHTML = obj.proud;
+
+ }, false);
+}
+
+    </script>
+</body>
+</html>
